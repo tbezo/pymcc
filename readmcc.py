@@ -10,8 +10,7 @@ Created on Fri Aug 01 13:25:39 2021
 import re
 import numpy as np
 import pandas as pd
-
-from .wtscans import XyProfile, PDD
+from pymcc.wtscans import XyProfile, PDD
 
 
 def read_file(filepath: str) -> list:
@@ -144,3 +143,15 @@ def linearize_data(dataframe: pd.DataFrame) -> pd.DataFrame:
     #dataint.meas_values = dataint.meas_values.interpolate(method='cubic')
 
     return dataint
+
+# if __name__ == "__main__":
+#     import sys
+#     #print(sys.argv[1])
+#     mymcc = read_file(sys.argv[1])
+#     for i in mymcc:
+#         if i.curve_type == "PDD":
+#             print(i.calc_pdd())
+#         elif i.curve_type == "INPLANE_PROFILE":
+#             print(i.calc_profile())
+#         elif i.curve_type == "CROSSPLANE_PROFILE":
+#             print(i.calc_profile())
