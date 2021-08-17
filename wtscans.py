@@ -217,7 +217,8 @@ class PDD:
             results = {
                 "Type": self.curve_type,
                 "R80": self.depth_x(80.0),
-                "R50 (DIN)": self.calc_R50_din(),
+                "R50": {"R50 (DIN)": self.calc_R50_din(), 
+                        "R50": self.depth_x(50.0)},
                 "Rp": self.calc_Rp(),
                 }
         elif self.modality == "X":
@@ -294,9 +295,9 @@ class XyProfile:
         fwhm = self.interp_value(b_1, b_2, half_max) - self.interp_value(a_1, a_2, half_max)
 
         # correct for measurement depth so that Fieldsize is returned at iso
-        iso_correction = self.isocenter/(self.ssd+self.scan_depth)
+        iso_corr = self.isocenter/(self.ssd+self.scan_depth)
 
-        fwhm_results = {'fwhm (nominal)': fwhm, 'fwhm (iso)': fwhm*iso_correction}
+        fwhm_results = {'fwhm (nominal)': fwhm, 'fwhm': fwhm*iso_corr}
 
         return fwhm_results
 
@@ -402,7 +403,7 @@ class XyProfile:
         return slope_left, slope_right, peak_pos
 
 
-    def calc_caxdev(self) -> np.float64:
+    def calc_caxdev_pylinac(self) -> np.float64:
         """Calculate the distance between the CAX and the center of the
         field that has been calculated. (maybe not perfect for large
         FFF fields)
@@ -420,6 +421,38 @@ class XyProfile:
         cax_dev = (profil.beam_center()['index (exact)'] -
                                 profil.geometric_center()['index (exact)']) / 10
 
+        return cax_dev
+
+    def calc_caxdev(self, max_type: str = 'cax') -> np.float64:
+        """Calculate the distance between the CAX and the center of the
+        field that has been calculated.
+        """
+
+        half_max = self.calc_halfmax(max_type=max_type)
+
+        # find the index where half max should be inserted before to keep the
+        # series sorted. Hence value at _pos is always higher.
+        left_pos = self.dataframe.meas_values.searchsorted(half_max)
+        a_1 = (self.dataframe.position.iat[left_pos-1],
+               self.dataframe.meas_values.iat[left_pos-1])
+        a_2 = (self.dataframe.position.iat[left_pos],
+               self.dataframe.meas_values.iat[left_pos])
+
+        right_pos = self.dataframe.iloc[::-1].meas_values.searchsorted(half_max)
+        b_1 = (self.dataframe.iloc[::-1].position.iat[right_pos-1],
+               self.dataframe.iloc[::-1].meas_values.iat[right_pos-1])
+        b_2 = (self.dataframe.iloc[::-1].position.iat[right_pos],
+               self.dataframe.iloc[::-1].meas_values.iat[right_pos])
+        
+        print(a_1, b_1)
+        
+        print(self.interp_value(b_1, b_2, half_max))
+        
+        print(self.interp_value(a_1, a_2, half_max))        
+        
+        cax_dev = (self.interp_value(b_1, b_2, half_max) +
+                    self.interp_value(a_1, a_2, half_max)) / 2
+        
         return cax_dev
 
 

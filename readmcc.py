@@ -79,18 +79,18 @@ def read_file(filepath: str) -> list:
                     data_obj.append(XyProfile(modality, data_type, offset, 
                                              nominal_fs, filter, isocenter, 
                                              ssd, scan_depth, data))
-                    line = [] # empty line buffer
+                    lines = [] # empty line buffer
                 if data_type == "CROSSPLANE_PROFILE":
                     data = conv_data(lines)
                     data_obj.append(XyProfile(modality, data_type, offset, 
                                              nominal_fs, filter, isocenter, 
                                              ssd, scan_depth, data))
-                    line = [] # empty line buffer
+                    lines = [] # empty line buffer
                 if data_type == "PDD":
                     data = conv_data(lines)
                     data_obj.append(PDD(modality, data_type, offset, nominal_fs,
                         filter, isocenter, ssd, scan_depth, data))
-                    line = [] # empty line buffer
+                    lines = [] # empty line buffer
 
             elif copy:
                 lines.append(line)
