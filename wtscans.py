@@ -209,7 +209,7 @@ class PDD:
         return Rp
     
     
-    def calc_pdd(self):
+    def calc_results(self) -> dict:
         """Calculate all relevant values for inplane and crossplane data and
         return two dicts, one for inplane and one for crossplane.
         """
@@ -513,7 +513,7 @@ class XyProfile:
 
         return renorm_factor/100
 
-    def calc_profile(self) -> dict:
+    def calc_results(self) -> dict:
         """Calculate all relevant values for inplane or crossplane data and
         return dict
         """
