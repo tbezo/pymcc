@@ -186,7 +186,7 @@ class PDD:
         
         # intercept
         a50 = (self.depth_x(50.0), 0.5 * max_dose)
-        i50 = a50[1]- (a50[0] * slope_50)
+        inter_50 = a50[1]- (a50[0] * slope_50)
 
         # define data range for linear regression, start with an estimated
         # practical Range (formula from PTW data analyze handbook)
@@ -197,14 +197,26 @@ class PDD:
         # add saftey distance behind Rp (slope should be shallow here)
         lin_start = int(Rp_est + 100)
         
-        #self.dataframe[lin_start:].meas_values.plot()
+        print(lin_start)
+        print(self.dataframe.position.size - 2)
         
-        # do linear regression on Dataframe Series
-        lr = linregress(self.dataframe.position[lin_start:], 
+        # if there are enough data points do a linear regression
+        if lin_start < ( self.dataframe.position.size - 2 ):
+            #self.dataframe[lin_start:].meas_values.plot()
+        
+            # do linear regression on Dataframe Series
+            lr = linregress(self.dataframe.position[lin_start:], 
                         self.dataframe.meas_values[lin_start:])
-        
+            inter_bs = lr.intercept
+            slope_bs = lr.slope
+        # else, use the last point as an approximation for the intercept
+        # with 0 slope
+        else:
+            inter_bs = self.dataframe['meas_values'].iloc[-1]
+            slope_bs = 0
+                       
         # Rp is the depth of the point of intersection 
-        Rp = (lr.intercept - i50) / (slope_50 - lr.slope)
+        Rp = (inter_bs - inter_50) / (slope_50 - slope_bs)
         
         return Rp
     
@@ -457,7 +469,7 @@ class XyProfile:
 
     def calc_sym(self) -> np.float64:
         """Calculates the symmetry of the field plane with the point difference
-        method. (same for FF and FFF).
+        method. (same for FF and FFF? should the result be rescaled?).
         """
         messwerte = self.dataframe.meas_values.values
         profil = pylinac.core.profile.SingleProfile(messwerte,
