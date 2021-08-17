@@ -444,11 +444,10 @@ class XyProfile:
         b_2 = (self.dataframe.iloc[::-1].position.iat[right_pos],
                self.dataframe.iloc[::-1].meas_values.iat[right_pos])
         
-        print(a_1, b_1)
-        
-        print(self.interp_value(b_1, b_2, half_max))
-        
-        print(self.interp_value(a_1, a_2, half_max))        
+        # for debugging
+        # print(a_1, b_1)
+        # print(self.interp_value(b_1, b_2, half_max))
+        # print(self.interp_value(a_1, a_2, half_max))        
         
         cax_dev = (self.interp_value(b_1, b_2, half_max) +
                     self.interp_value(a_1, a_2, half_max)) / 2
