@@ -315,7 +315,7 @@ class XyProfile:
 
 
     def calc_dinflat(self) -> np.float64:
-        """Calculate the flatness according to Varian"""
+        """Calculate the flatness according to DIN"""
 
         # extract np.array from Dataframe and create Pylinac profile
         messwerte = self.dataframe.meas_values.values
@@ -377,14 +377,16 @@ class XyProfile:
         idx_center = self.dataframe.position.searchsorted(0.0)
         renorm_percent = (self.calc_fff_renorm10x()*100 /
                             self.dataframe.meas_values.iat[idx_center])
-
+        
+        offset = self.calc_caxdev()
+        
         # find point positions (index) on left side
-        idx_a1 = self.dataframe.position.searchsorted(0.0 - field_width['fwhm (nominal)']/3)
-        idx_a2 = self.dataframe.position.searchsorted(0.0 - field_width['fwhm (nominal)']/6)
+        idx_a1 = self.dataframe.position.searchsorted(offset - field_width['fwhm (nominal)']/3)
+        idx_a2 = self.dataframe.position.searchsorted(offset - field_width['fwhm (nominal)']/6)
 
         # find point positions (index) on right side
-        idx_b1 = self.dataframe.position.searchsorted(field_width['fwhm (nominal)']/6)
-        idx_b2 = self.dataframe.position.searchsorted(field_width['fwhm (nominal)']/3)
+        idx_b1 = self.dataframe.position.searchsorted(offset + field_width['fwhm (nominal)']/6)
+        idx_b2 = self.dataframe.position.searchsorted(offset + field_width['fwhm (nominal)']/3)
 
         #print("CAX-Index: ", idx_center)
 
@@ -401,6 +403,11 @@ class XyProfile:
         b2 = (self.dataframe.position.iat[idx_b2],
                 self.dataframe.meas_values.iat[idx_b2]*renorm_percent)
 
+        # for debugging
+        # print("a1: ", a1)
+        # print("a2: ", a2)
+        # print("b1: ", b1)
+        # print("b2: ", b2)
 
         # calculate slopes:
         slope_left = (a1[1]-a2[1])/(a1[0]-a2[0])
@@ -472,9 +479,15 @@ class XyProfile:
         method. (same for FF and FFF? should the result be rescaled?).
         """
         messwerte = self.dataframe.meas_values.values
-        profil = pylinac.core.profile.SingleProfile(messwerte,
+        if self.filter == "FF":
+            profil = pylinac.core.profile.SingleProfile(messwerte,
                     None,pylinac.core.profile.Interpolation.NONE,False,0.1,10,
-                    pylinac.core.profile.Normalization.NONE)
+                    pylinac.core.profile.Normalization.GEOMETRIC_CENTER)
+        else:
+            profil = pylinac.core.profile.SingleProfile(messwerte,
+                    None,pylinac.core.profile.Interpolation.NONE,False,0.1,10,
+                    pylinac.core.profile.Normalization.GEOMETRIC_CENTER,
+                    pylinac.core.profile.Edge.INFLECTION_DERIVATIVE)
         symmetry = pylinac.field_analysis.symmetry_point_difference(profil, 0.8)
         return symmetry
 
@@ -482,7 +495,7 @@ class XyProfile:
     def calc_halfmax(self, max_type: str = 'cax') -> np.float64:
         """Return half of the max value or half the cax value depending on
         the given max_type. Default is to return half the CAX value. For FFF
-        fields the value gets renormalized to return the correct value
+        fields the value gets renormalized to return the "correct" value.
         """
 
         if max_type == 'cax':
