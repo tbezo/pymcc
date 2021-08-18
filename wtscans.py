@@ -186,7 +186,7 @@ class PDD:
         
         # intercept
         a50 = (self.depth_x(50.0), 0.5 * max_dose)
-        inter_50 = a50[1]- (a50[0] * slope_50)
+        i50 = a50[1]- (a50[0] * slope_50)
 
         # define data range for linear regression, start with an estimated
         # practical Range (formula from PTW data analyze handbook)
@@ -197,31 +197,19 @@ class PDD:
         # add saftey distance behind Rp (slope should be shallow here)
         lin_start = int(Rp_est + 100)
         
-        print(lin_start)
-        print(self.dataframe.position.size - 2)
+        #self.dataframe[lin_start:].meas_values.plot()
         
-        # if there are enough data points do a linear regression
-        if lin_start < ( self.dataframe.position.size - 2 ):
-            #self.dataframe[lin_start:].meas_values.plot()
-        
-            # do linear regression on Dataframe Series
-            lr = linregress(self.dataframe.position[lin_start:], 
+        # do linear regression on Dataframe Series
+        lr = linregress(self.dataframe.position[lin_start:], 
                         self.dataframe.meas_values[lin_start:])
-            inter_bs = lr.intercept
-            slope_bs = lr.slope
-        # else, use the last point as an approximation for the intercept
-        # with 0 slope
-        else:
-            inter_bs = self.dataframe['meas_values'].iloc[-1]
-            slope_bs = 0
-                       
+        
         # Rp is the depth of the point of intersection 
-        Rp = (inter_bs - inter_50) / (slope_50 - slope_bs)
+        Rp = (lr.intercept - i50) / (slope_50 - lr.slope)
         
         return Rp
     
     
-    def calc_results(self) -> dict:
+    def calc_pdd(self):
         """Calculate all relevant values for inplane and crossplane data and
         return two dicts, one for inplane and one for crossplane.
         """
@@ -229,8 +217,7 @@ class PDD:
             results = {
                 "Type": self.curve_type,
                 "R80": self.depth_x(80.0),
-                "R50": {"R50 (DIN)": self.calc_R50_din(), 
-                        "R50": self.depth_x(50.0)},
+                "R50 (DIN)": self.calc_R50_din(),
                 "Rp": self.calc_Rp(),
                 }
         elif self.modality == "X":
@@ -415,7 +402,7 @@ class XyProfile:
         return slope_left, slope_right, peak_pos
 
 
-    def calc_caxdev_pylinac(self) -> np.float64:
+    def calc_caxdev(self) -> np.float64:
         """Calculate the distance between the CAX and the center of the
         field that has been calculated. (maybe not perfect for large
         FFF fields)
@@ -435,41 +422,10 @@ class XyProfile:
 
         return cax_dev
 
-    def calc_caxdev(self, max_type: str = 'cax') -> np.float64:
-        """Calculate the distance between the CAX and the center of the
-        field that has been calculated.
-        """
-
-        half_max = self.calc_halfmax(max_type=max_type)
-
-        # find the index where half max should be inserted before to keep the
-        # series sorted. Hence value at _pos is always higher.
-        left_pos = self.dataframe.meas_values.searchsorted(half_max)
-        a_1 = (self.dataframe.position.iat[left_pos-1],
-               self.dataframe.meas_values.iat[left_pos-1])
-        a_2 = (self.dataframe.position.iat[left_pos],
-               self.dataframe.meas_values.iat[left_pos])
-
-        right_pos = self.dataframe.iloc[::-1].meas_values.searchsorted(half_max)
-        b_1 = (self.dataframe.iloc[::-1].position.iat[right_pos-1],
-               self.dataframe.iloc[::-1].meas_values.iat[right_pos-1])
-        b_2 = (self.dataframe.iloc[::-1].position.iat[right_pos],
-               self.dataframe.iloc[::-1].meas_values.iat[right_pos])
-        
-        # for debugging
-        # print(a_1, b_1)
-        # print(self.interp_value(b_1, b_2, half_max))
-        # print(self.interp_value(a_1, a_2, half_max))        
-        
-        cax_dev = (self.interp_value(b_1, b_2, half_max) +
-                    self.interp_value(a_1, a_2, half_max)) / 2
-        
-        return cax_dev
-
 
     def calc_sym(self) -> np.float64:
         """Calculates the symmetry of the field plane with the point difference
-        method. (same for FF and FFF? should the result be rescaled?).
+        method. (same for FF and FFF).
         """
         messwerte = self.dataframe.meas_values.values
         profil = pylinac.core.profile.SingleProfile(messwerte,
@@ -525,7 +481,7 @@ class XyProfile:
 
         return renorm_factor/100
 
-    def calc_results(self) -> dict:
+    def calc_profile(self) -> dict:
         """Calculate all relevant values for inplane or crossplane data and
         return dict
         """
