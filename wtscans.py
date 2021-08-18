@@ -46,7 +46,7 @@ class PDD:
         return interp_y
     
 
-    def depth_max(self, interp=True) -> np.float64:
+    def depth_max(self, interp: bool = True) -> np.float64:
         """function that returns the position of the maximum of the pdd
         """
         if interp:
@@ -315,7 +315,7 @@ class XyProfile:
 
 
     def calc_dinflat(self) -> np.float64:
-        """Calculate the flatness according to DIN"""
+        """Calculate the flatness according to DIN using pylinac"""
 
         # extract np.array from Dataframe and create Pylinac profile
         messwerte = self.dataframe.meas_values.values
@@ -329,20 +329,20 @@ class XyProfile:
         profil_min = profil.field_calculation(0.8, 'min')
         #print(\"Profil 80% Min: \", profil_min)
         center = profil.geometric_center()
-        #print(\"Messwert Zentralstrahl: \", profil.values[int(y_center['index (exact)'])])
+        #print(\"Mess. value CAX: \", profil.values[int(y_center['index (exact)'])])
 
 
-        #Wert im Zentrahlstrahl
+        # value at cax
         din100 = profil.values[int(center['index (exact)'])]
 
-        #Flatness nach PTW Data Analyse Varian Protocol
+        # flatness like PTW Data Analyse Varian Protocol
         din_flat = (profil_max /din100 - profil_min / din100) / 2 * 100
 
-        #Geometric Center: profil.geometric_center()
+        # Geometric Center: profil.geometric_center()
         #Dmax: \", \"%.2f\" % (profil_max / din100 * 100), \"%\")
         #Dmin: \", \"%.2f\" % (profil_min / din100 * 100), \"%\")
 
-        #Wert im Zentrahlstrahl (über dataframe, sollte mit pylianc ident. sein)
+        # value at cax (using dataframe, should be ident. to pylianc)
         #ptw100 = self.dataframe.loc[(self.dataframe.position == 0.0), 'meas_values'].iat[0]
 
         return din_flat
@@ -355,8 +355,10 @@ class XyProfile:
         idx_center = self.dataframe.position.searchsorted(0.0)
 
         # Unflattness
-        idx_80_left = self.dataframe.position.searchsorted(0.0 - 0.8 * field_width['fwhm (nominal)']/2)
-        idx_80_right = self.dataframe.position.searchsorted(0.8 * field_width['fwhm (nominal)']/2)
+        idx_80_left = self.dataframe.position.searchsorted(0.0 -
+                                        0.8 * field_width['fwhm (nominal)']/2)
+        idx_80_right = self.dataframe.position.searchsorted(0.8 *
+                                              field_width['fwhm (nominal)']/2)
 
         unflattness = 1.0
         for x in [idx_80_left, idx_80_right]:
@@ -367,7 +369,7 @@ class XyProfile:
         return unflattness
 
 
-    def calc_fff_slopes_peak(self) -> np.float64:
+    def calc_fff_slopes_peak(self, center: bool = True) -> np.float64:
         """Calculate the left and right slopes of the fff profiles"""
 
         # fff field with needed to find 1/3 and 2/3 points on slopes
@@ -377,16 +379,22 @@ class XyProfile:
         idx_center = self.dataframe.position.searchsorted(0.0)
         renorm_percent = (self.calc_fff_renorm10x()*100 /
                             self.dataframe.meas_values.iat[idx_center])
-        
-        offset = self.calc_caxdev()
+        if center:
+            offset = self.calc_caxdev()
+        else:
+            offset = 0.0
         
         # find point positions (index) on left side
-        idx_a1 = self.dataframe.position.searchsorted(offset - field_width['fwhm (nominal)']/3)
-        idx_a2 = self.dataframe.position.searchsorted(offset - field_width['fwhm (nominal)']/6)
+        idx_a1 = self.dataframe.position.searchsorted(offset -
+                                            field_width['fwhm (nominal)']/3)
+        idx_a2 = self.dataframe.position.searchsorted(offset -
+                                            field_width['fwhm (nominal)']/6)
 
         # find point positions (index) on right side
-        idx_b1 = self.dataframe.position.searchsorted(offset + field_width['fwhm (nominal)']/6)
-        idx_b2 = self.dataframe.position.searchsorted(offset + field_width['fwhm (nominal)']/3)
+        idx_b1 = self.dataframe.position.searchsorted(offset +
+                                            field_width['fwhm (nominal)']/6)
+        idx_b2 = self.dataframe.position.searchsorted(offset +
+                                            field_width['fwhm (nominal)']/3)
 
         #print("CAX-Index: ", idx_center)
 
@@ -464,7 +472,9 @@ class XyProfile:
                self.dataframe.iloc[::-1].meas_values.iat[right_pos])
         
         # for debugging
-        # print(a_1, b_1)
+        # print(half_max)
+        # print(a_1, a_2)
+        # print(b_1, b_2)
         # print(self.interp_value(b_1, b_2, half_max))
         # print(self.interp_value(a_1, a_2, half_max))        
         
@@ -476,7 +486,7 @@ class XyProfile:
 
     def calc_sym(self) -> np.float64:
         """Calculates the symmetry of the field plane with the point difference
-        method. (same for FF and FFF? should the result be rescaled?).
+        method using pylinax single profile class.
         """
         messwerte = self.dataframe.meas_values.values
         if self.filter == "FF":
