@@ -34,6 +34,8 @@ def read_file(filepath: str) -> list:
         lines = []
         # mark for data values, they get only edded if copy = true
         copy = False
+        # isocenter value for Array files:
+        isocenter = 1000.0
         data_type = ""
 
         for line in meas_file:  # QATrack+ needs "in FILE"

@@ -260,14 +260,14 @@ class XyProfile:
                  nominal_fs: float, filter: str, isocenter: float, 
                  ssd: float, scan_depth: float, datafr: pd.DataFrame()) -> None:
 
+        self.curve_type = curve_type
         self.dataframe = datafr
-        self.offset = offset
         self.isocenter = isocenter
         self.scan_depth = scan_depth
         self.ssd = ssd
         self.nominal_fs = nominal_fs
+        self.offset = offset
         self.filter = filter
-        self.curve_type = curve_type
         self.modality = mod
 
 
