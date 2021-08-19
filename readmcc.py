@@ -105,7 +105,7 @@ def conv_data(lines: list) -> pd.DataFrame:
 
     # \s for unicode (str) patterns, matches whitespace characters
     # \d for unicode (str) patterns, matches decimal digit
-    ptw_pattern = re.compile(r'(?P<position>\S+)\s{2}(?P<meas_values>\S+)\s{,2}(?P<reference>\S*)')
+    ptw_pattern = re.compile(r'(?P<position>\S+)\s{2}(?P<meas_values>\S+)\s{,2}#*(?P<reference>\S*)')
     data = []
     for line in lines:
         match = ptw_pattern.search(line)
