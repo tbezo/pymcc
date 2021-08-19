@@ -47,7 +47,7 @@ class PDD:
     
 
     def depth_max(self, interp: bool = True) -> np.float64:
-        """function that returns the position of the maximum of the pdd
+        """function that returns the position of the maximum of the pdd in mm
         """
         if interp:
                 wl = int(self.dataframe.position.size / 100)
@@ -63,6 +63,7 @@ class PDD:
     def depth_x(self, x: np.float) -> np.float64:
         """function that returns the position of x% of the max of the pdd with
         linear interpolation between data points (in case of a steep gradient)
+        in mm.
         """
 
         max_dose = self.dataframe['meas_values'].max()
@@ -100,7 +101,7 @@ class PDD:
 
         idx = self.dataframe.position.searchsorted(100.0)
         max_dose = self.dataframe['meas_values'].max()
-        d100 = self.dataframe.meas_values.iat[idx] / max_dose
+        d100 = (self.dataframe.meas_values.iat[idx] / max_dose) * 100
 
         return d100
 
@@ -111,13 +112,14 @@ class PDD:
 
         idx = self.dataframe.position.searchsorted(200.0)
         max_dose = self.dataframe['meas_values'].max()
-        d200 = self.dataframe.meas_values.iat[idx] / max_dose
+        d200 = (self.dataframe.meas_values.iat[idx] / max_dose) * 100
 
         return d200
 
 
     def calc_R50_din(self) -> np.float64:
-        """function that returns the R50 value according to german DIN 6800-2
+        """function that returns the R50 value (dose to water) according to 
+        german DIN 6800-2
         """
         # half maximum
         D50ion = self.dataframe['meas_values'].max() / 2
@@ -139,7 +141,8 @@ class PDD:
 
 
     def calc_surface_dose(self) -> np.float64:
-        """function that returns the relative surface dose at 0.5 mm depth
+        """function that returns the relative surface dose at 0.5 mm depth 
+        (in %)
         """
         
         # only works if values are already interpolated with stepsize 0.1 mm
