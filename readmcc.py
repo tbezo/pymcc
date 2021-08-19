@@ -16,6 +16,9 @@ from pymcc.wtscans import XyProfile, PDD
 def read_file(filepath: str) -> list:
     """Read a mcc file and create an object from each data part.
     To access the filename in QATrack+ use FILE.name
+    
+    Only symmetric fields and symmetric offsets are supported.
+    
     """
     # default values for our water tank scans
     nominal_fs = 100.0
