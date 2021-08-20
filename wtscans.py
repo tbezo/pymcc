@@ -289,6 +289,9 @@ class XyProfile:
     def calc_fwhm(self, max_type: str = 'cax') -> dict:
         """Calculate the FWHM from data in the DataFrame and return the
         Fieldsize nominal and at isocenter distance.
+        
+        The 'fwhm (nominal)' result is the actual measurement length (distance 
+        the detector travelled), 'fhwm' is the field size at the isocenter.
         """
 
         half_max = self.calc_halfmax(max_type=max_type)
@@ -553,7 +556,8 @@ class XyProfile:
 
     def calc_results(self) -> dict:
         """Calculate all relevant values for inplane or crossplane data and
-        return dict
+        return dict.
+    
         """
         if self.filter == "FF":
             results = {
