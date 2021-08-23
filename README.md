@@ -28,7 +28,7 @@ read_mcc_6x_10x10 = mcc_dict
 flat_10x10_x_py = read_mcc_6x_10x10["CROSSPLANE_PROFILE"]["Flatness"]
 ```
 
-The complete mcc_dict looks like this:
+A complete mcc_dict can looks like this (here electrons, 20 x 20 cm²):
 
 {'PDD': {'Type': 'PDD', 'R80': 19.986482881280565, 'R50': {'R50 (DIN)': 24.940544317729188, 'R50': 23.788279990789775}, 'Rp': 29.794591153821518}, 
 'INPLANE_PROFILE': {'Type': 'INPLANE_PROFILE', 'CaxDev': 0.3168300690775254, 'FWHM': {'fwhm (nominal)': 204.02442621763075, 'fwhm': 201.42603042514637}, 'Flatness': 1.9405358627975489, 'Symmetry': 0.9219008965810869}, 
