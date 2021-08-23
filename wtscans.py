@@ -3,7 +3,7 @@
 wtscans.py
 Created on Fri Aug 13 13:20:39 2021
 
-@author: bez0t
+@author: tbezo
 """
 
 import numpy as np
@@ -16,6 +16,7 @@ class PDD:
     """
     Calculate the field parameters asked for in DIN6847-5
     """
+    
     def __init__(self, mod: str, curve_type: str, offset: float, 
                  nominal_fs: float, filter: str, isocenter: float, 
                  ssd: float, scan_depth: float, datafr: pd.DataFrame()) -> None:
@@ -32,22 +33,52 @@ class PDD:
 
 
     @staticmethod
-    def interp_value(point_a: np.float64, point_b: np.float64,
-                     interp_x: np.float64) -> np.float64:
-        """Calculate an interpolated value between two points."""
+    def interp_value(point_a: tuple, point_b: tuple,
+                     interp_y: np.float64) -> np.float64:
+        """
+        Calculate an interpolated "x" value between two points.
+
+        Parameters
+        ----------
+        point_a : np.float64
+            First point for interpolation.
+        point_b : np.float64
+            Second point for interpolation.
+        interp_y : np.float64
+            Position at which to interpolate the points to.
+
+        Returns
+        -------
+        interp_x : np.float64
+            interpolated "x value at .
+
+        """
 
         slope = (point_b[1]-point_a[1]) / (point_b[0]-point_a[0])
 
         intersect = point_a[1] - slope*point_a[0]
 
         # y value at x
-        interp_y = (interp_x-intersect) / slope
+        interp_x = (interp_y-intersect) / slope
 
-        return interp_y
+        return interp_x
     
 
     def depth_max(self, interp: bool = True) -> np.float64:
-        """function that returns the position of the maximum of the pdd in mm
+        """
+        function that returns the position of the maximum of the pdd in mm
+
+        Parameters
+        ----------
+        interp : bool, optional
+            Specify if you want to interpolate/smooth between values.
+            The default is True.
+
+        Returns
+        -------
+        max_depth : np.float64
+            depth of maximum dose (smoothed if interp = True). 
+
         """
         if interp:
                 wl = int(self.dataframe.position.size / 100)
@@ -61,9 +92,21 @@ class PDD:
 
 
     def depth_x(self, x: np.float) -> np.float64:
-        """function that returns the position of x% of the max of the pdd with
+        """
+        function that returns the position of x% of the max of the pdd with
         linear interpolation between data points (in case of a steep gradient)
         in mm.
+
+        Parameters
+        ----------
+        x : np.float
+            percentage value from 0 to 100%.
+
+        Returns
+        -------
+        x_depth : np.float64
+            depth where the dose dropped to x percent from maximum.
+
         """
 
         max_dose = self.dataframe['meas_values'].max()
@@ -86,7 +129,19 @@ class PDD:
 
 
     def dose_x(self, depth: np.float) -> np.float64:
-        """ returns the percent dose value at x mm depth
+        """
+        returns the percent dose value at x mm depth
+
+        Parameters
+        ----------
+        depth : np.float
+            depth in mm where the percent value gets returned.
+
+        Returns
+        -------
+        dx : np.float64
+            dose in percent at x mm depth.
+
         """
 
         idx = self.dataframe.position.searchsorted(depth)
@@ -96,7 +151,14 @@ class PDD:
         return dx
 
     def dose_100(self) -> np.float64:
-        """ returns the percent dose value at 100 mm depth
+        """
+        returns the percent dose value at 100 mm depth
+
+        Returns
+        -------
+        d100 : np.float64
+            percent dose at 100 mm depth.
+
         """
 
         idx = self.dataframe.position.searchsorted(100.0)
@@ -107,7 +169,14 @@ class PDD:
 
 
     def dose_200(self) -> np.float64:
-        """ returns the percent dose value at 200 mm depth
+        """
+        returns the percent dose value at 200 mm depth
+
+        Returns
+        -------
+        d200 : np.float64
+            percent dose at 200 mm depth.
+
         """
 
         idx = self.dataframe.position.searchsorted(200.0)
@@ -118,8 +187,15 @@ class PDD:
 
 
     def calc_R50_din(self) -> np.float64:
-        """function that returns the R50 value (dose to water) according to 
+        """
+        function that returns the R50 value (dose to water) according to 
         german DIN 6800-2
+
+        Returns
+        -------
+        R50 : np.float64
+            Dose to water at 50% maximum dose.
+
         """
         # half maximum
         D50ion = self.dataframe['meas_values'].max() / 2
@@ -141,8 +217,15 @@ class PDD:
 
 
     def calc_surface_dose(self) -> np.float64:
-        """function that returns the relative surface dose at 0.5 mm depth 
-        (in %)
+        """
+        function that returns the relative surface dose at 0.5 mm depth (in %).
+        Takes advantage of the already interpolated values from the dataframe
+
+        Returns
+        -------
+        rel_surface_dose : np.float64
+            relative dose at 0.5 mm depth.
+
         """
         
         # only works if values are already interpolated with stepsize 0.1 mm
@@ -155,7 +238,14 @@ class PDD:
 
 
     def calc_q_index(self) -> np.float64:
-        """calculate Q_index following IAEA TRS 398
+        """
+        calculate Q_index following IAEA TRS 398
+
+        Returns
+        -------
+        qi : np.float64
+            calculated Q index.
+
         """
 
         d100 = self.dose_100()
@@ -167,7 +257,15 @@ class PDD:
 
 
     def calc_E0_mean(self) -> np.float64:
-        """ Estimate of the mean Electron energy at the phantom surface
+        """
+        Estimate of the mean Electron energy at the phantom surface using the
+        R50 dose to water.
+
+        Returns
+        -------
+        E0_mean : np.float64
+            estimated mean electron energy.
+
         """
 
         E0_mean = 2.33 * self.calc_R50_din() / 10
@@ -176,7 +274,17 @@ class PDD:
 
 
     def calc_Rp(self) -> np.float64:
-        """Calculate practical Range of an electron beam"""
+        """
+        Calculate practical Range of an electron beam. The practical range is 
+        defined as the intersection of the tangent at 50% dose and the linear
+        regression line of the Bremsstrahlungs tail.
+
+        Returns
+        -------
+        Rp : np.float64
+            practical range of the electron beam.
+
+        """
 
         max_dose = self.dataframe['meas_values'].max()
         
@@ -226,8 +334,15 @@ class PDD:
     
     
     def calc_results(self) -> dict:
-        """Calculate all relevant values for inplane and crossplane data and
-        return two dicts, one for inplane and one for crossplane.
+        """
+        Calculate relevant results for electron or photon PDDs.
+
+        Returns
+        -------
+        dict
+            Return list of results depending on the modality (Photons or 
+            Electrons).
+
         """
         if self.modality == "EL":
             results = {

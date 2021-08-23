@@ -9,5 +9,6 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 6:
 
 from pymcc.wtscans import XyProfile, PDD
 import pymcc.readmcc
+import pymcc.array
 
 __all__ = ["wtscans", "readmcc"]
