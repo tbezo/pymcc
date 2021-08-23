@@ -200,8 +200,9 @@ class PDD:
         # add saftey distance behind Rp (slope should be shallow here)
         lin_start = int(Rp_est + 100)
         
-        print(lin_start)
-        print(self.dataframe.position.size - 2)
+        # for debugging
+        #print(lin_start)
+        #print(self.dataframe.position.size - 2)
         
         # if there are enough data points do a linear regression
         if lin_start < ( self.dataframe.position.size - 2 ):
