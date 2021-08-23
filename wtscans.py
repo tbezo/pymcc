@@ -390,24 +390,53 @@ class XyProfile:
 
     @staticmethod
     def interp_value(point_a: np.float64, point_b: np.float64,
-                     interp_x: np.float64) -> np.float64:
-        """Calculate an interpolated value between two points."""
+                     interp_y: np.float64) -> np.float64:
+        """
+        Calculate an interpolated "x" value between two points.
+
+        Parameters
+        ----------
+        point_a : np.float64
+            First point for interpolation.
+        point_b : np.float64
+            Second point for interpolation.
+        interp_y : np.float64
+            Position at which to interpolate the points to.
+
+        Returns
+        -------
+        interp_x : np.float64
+            interpolated "x value at .
+
+        """
 
         slope = (point_b[1]-point_a[1]) / (point_b[0]-point_a[0])
 
         intersect = point_a[1] - slope*point_a[0]
 
-        # y value at x
-        interp_y = (interp_x-intersect) / slope
+        # x value at y
+        interp_x = (interp_y-intersect) / slope
 
-        return interp_y
+        return interp_x
 
     def calc_fwhm(self, max_type: str = 'cax') -> dict:
-        """Calculate the FWHM from data in the DataFrame and return the
+        """
+        Calculate the FWHM from data in the DataFrame and return the
         Fieldsize nominal and at isocenter distance.
-        
-        The 'fwhm (nominal)' result is the actual measurement length (distance 
-        the detector travelled), 'fhwm' is the field size at the isocenter.
+
+        Parameters
+        ----------
+        max_type : str, optional
+            normalize to cax value or to the absolute maximum.
+            The default is 'cax'.
+
+        Returns
+        -------
+        dict
+            The 'fwhm (nominal)' result is the actual measurement length
+            (distance the detector travelled), 'fhwm' is the field size at the
+            isocenter.
+            
         """
 
         half_max = self.calc_halfmax(max_type=max_type)
@@ -437,7 +466,15 @@ class XyProfile:
 
 
     def calc_dinflat(self) -> np.float64:
-        """Calculate the flatness according to DIN using pylinac"""
+        """
+        Calculate the flatness according to DIN using pylinac.
+
+        Returns
+        -------
+        din_flat : np.float64
+            Flatness of the profile.
+
+        """
 
         # extract np.array from Dataframe and create Pylinac profile
         messwerte = self.dataframe.meas_values.values
@@ -471,7 +508,15 @@ class XyProfile:
 
 
     def calc_fff_unflat(self) -> np.float64:
-        """Calculate the FFF unflatness according to Fogliata"""
+        """
+        Calculate the FFF unflatness according to Fogliata
+
+        Returns
+        -------
+        unflattness : np.float64
+            calculated unflattnes value.
+
+        """
 
         field_width = self.calc_fwhm()
         idx_center = self.dataframe.position.searchsorted(0.0)
@@ -492,7 +537,25 @@ class XyProfile:
 
 
     def calc_fff_slopes_peak(self, center: bool = True) -> np.float64:
-        """Calculate the left and right slopes of the fff profiles"""
+        """
+        Calculate the left and right slopes of the fff profiles
+
+        Parameters
+        ----------
+        center : bool, optional
+            if True the positions are shifted by the cax deviation.
+            The default is True.
+
+        Returns
+        -------
+        slope_left : np.float64
+            left slope of the field.
+        slope_right : np.float64
+            right slope of the field.
+        peak_pos : np.float64
+            Peak Position in mm.
+
+        """
 
         # fff field with needed to find 1/3 and 2/3 points on slopes
         field_width = self.calc_fwhm()
@@ -553,9 +616,16 @@ class XyProfile:
 
 
     def calc_caxdev_pylinac(self) -> np.float64:
-        """Calculate the distance between the CAX and the center of the
+        """
+        Calculate the distance between the CAX and the center of the
         field that has been calculated. (maybe not perfect for large
         FFF fields)
+
+        Returns
+        -------
+        cax_dev : np.float64
+            Cax deviation in mm.
+
         """
 
         messwerte = self.dataframe.meas_values.values
@@ -573,8 +643,20 @@ class XyProfile:
         return cax_dev
 
     def calc_caxdev(self, max_type: str = 'cax') -> np.float64:
-        """Calculate the distance between the CAX and the center of the
+        """
+        Calculate the distance between the CAX and the center of the
         field that has been calculated.
+
+        Parameters
+        ----------
+        max_type : str, optional
+            Normalize to CAX Value or to absolute max. The default is 'cax'.
+
+        Returns
+        -------
+        cax_dev : np.float64
+            Cax deviation in mm.
+
         """
 
         half_max = self.calc_halfmax(max_type=max_type)
@@ -607,9 +689,17 @@ class XyProfile:
 
 
     def calc_sym(self) -> np.float64:
-        """Calculates the symmetry of the field plane with the point difference
-        method using pylinax single profile class.
         """
+        Calculates the symmetry of the field plane with the point difference
+        method using pylinacs single profile class.
+
+        Returns
+        -------
+        symmetry : np.float64
+            Calculated symetrie value in %.
+
+        """
+
         messwerte = self.dataframe.meas_values.values
         if self.filter == "FF":
             profil = pylinac.core.profile.SingleProfile(messwerte,
@@ -625,9 +715,22 @@ class XyProfile:
 
 
     def calc_halfmax(self, max_type: str = 'cax') -> np.float64:
-        """Return half of the max value or half the cax value depending on
+        """
+        Return half of the max value or half the cax value depending on
         the given max_type. Default is to return half the CAX value. For FFF
         fields the value gets renormalized to return the "correct" value.
+
+        Parameters
+        ----------
+        max_type : str, optional
+            Normalize to CAX Value or to absolute max. The default is 'cax'.
+
+        Returns
+        -------
+        half_max: np.float64
+            Half of the maximum. Either half the CAX or half of the absolute
+            maximum.
+
         """
 
         if max_type == 'cax':
@@ -645,10 +748,18 @@ class XyProfile:
 
 
     def calc_fff_renorm10x(self) -> np.float64:
-        """Return the field size correction factor for FFF beams
+        """
+        Return the field size correction factor for FFF beams
         Formula is taken from Folgiata et. al.
         (https://doi.org/10.1118/1.4754799) - valid for Truebeam 10 FFF
+
+        Returns
+        -------
+        renorm_factor: np.float64
+            Renormalization value to "stretch" the FFF profile percent values.
+
         """
+
 
         renorm_factor = (89.08 + 2.4826 * self.nominal_fs / 10
                          + 0.1152 * self.scan_depth / 10) \
@@ -658,9 +769,16 @@ class XyProfile:
         return renorm_factor/100
 
     def calc_fff_renorm6x(self) -> np.float64:
-        """Return the field size correction factor for FFF beams
+        """
+        Return the field size correction factor for FFF beams
         Formula is taken from Folgiata et. al.
         (https://doi.org/10.1118/1.4754799) - valid for Truebeam 6 FFF
+
+        Returns
+        -------
+        renorm_factor: np.float64
+            Renormalization value to "stretch" the FFF profile percent values.
+
         """
 
         renorm_factor = (95.60 + 0.6595 * self.nominal_fs / 10
@@ -671,10 +789,17 @@ class XyProfile:
         return renorm_factor/100
 
     def calc_results(self) -> dict:
-        """Calculate all relevant values for inplane or crossplane data and
-        return dict.
-    
         """
+        Calculate all relevant values for inplane or crossplane data and
+        returns a dict to be easily used in QATrack+.
+
+        Returns
+        -------
+        results: dict
+            results for FF or FFF profiles in a dict.
+
+        """
+    
         if self.filter == "FF":
             results = {
                 "Type": self.curve_type,
