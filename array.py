@@ -77,7 +77,16 @@ class SEVEN29:
         """
         return self.dataframe.iloc[::ds_val, ::ds_val]
 
+
     def plot(self):
+        """
+        Plots the DataFrame content with plt.imshow() 
+
+        Returns
+        -------
+        None.
+
+        """
         plt.imshow(self.dataframe)
         plt.yticks(np.arange(0.5, len(self.dataframe.index), 400),
                    self.dataframe.index[::400])
