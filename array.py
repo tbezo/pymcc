@@ -5,6 +5,7 @@ array.py
 """
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
   
 # Class that holds 729 Array measurement data in a Dataframe
@@ -75,6 +76,13 @@ class SEVEN29:
 
         """
         return self.dataframe.iloc[::ds_val, ::ds_val]
+
+    def plot(self):
+        plt.imshow(self.dataframe)
+        plt.yticks(np.arange(0.5, len(self.dataframe.index), 400),
+                   self.dataframe.index[::400])
+        plt.xticks(np.arange(0.5, len(self.dataframe.columns), 400),
+                   self.dataframe.columns[::400])
 
 
 # Class that holds Starcheck measurement data in a list of XyProfiles
