@@ -31,29 +31,50 @@ class SEVEN29:
         
         # remove reference values, they are not needed
         array = self.mcclist[0].dataframe.drop('reference', 1)
-        # use position as index, the final transposed df will have the
-        # position at both index and column names
-        array.set_index('position', inplace=True)
         
         # remove first profile element from list since it is already contained 
         # in DataFrame array
         del self.mcclist[0]
-        
+             
         for i in self.mcclist:
             # add NaN columns for interpolation
             for j in range(1, 100):
-                array.insert(y, "int" + str(y), np.nan)
+                array.insert(y+1, "int" + str(y), np.nan)
                 y = y + 1                
-            array.insert(y, "meas_values" + str(y), i.dataframe.meas_values)
+            array.insert(y+1, "meas_values" + str(y), i.dataframe.meas_values)
+            #print(i.dataframe.meas_values[1300])
             y = y + 1
         
         # interpolate between columns
         array.interpolate(method='linear', axis=1, limit=None, inplace=True)
+        # use position as index, the final transposed df will have the
+        # position at both index and column names
+        array.set_index('position', inplace=True)
         # use index also for column names before transposing
         array.set_axis(array.index, axis='columns', inplace=True)
 
         # return transposed array                        
         return array.transpose()
+ 
+    
+    def downsample(self, ds_val: int = 100) -> pd.DataFrame:
+        """
+        function that return a subsample of the dataframe. The default is to
+        only return the original data values.
+
+        Parameters
+        ----------
+        ds_val : int, optional
+            Downsample value. Only every ds_val row and column gets returned.
+            The default is 100.
+
+        Returns
+        -------
+        pd.DataFrame
+            by ds_val downsampled dataframe.
+
+        """
+        return self.dataframe.iloc[::ds_val, ::ds_val]
 
 
 # Class that holds Starcheck measurement data in a list of XyProfiles
