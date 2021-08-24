@@ -16,8 +16,9 @@ class SEVEN29:
   
     def merge_profiles(self) -> pd.DataFrame:
         """
-        merges all single xyProfiles into one 2D Dataframe with aditional
-        interpolation between the profiles. The final resolution is 0.1 mm.
+        Merges all xyProfiles into one 2D Dataframe with aditional
+        interpolation between the columns. The final resolution is 0.1 mm 
+        (which might too much)
         
         Returns
         -------
@@ -25,19 +26,34 @@ class SEVEN29:
             returns an interpolated and upsampled dataframe.
 
         """
-        y = 2
+        # starting point for inserting columns
+        y = 1
+        
+        # remove reference values, they are not needed
         array = self.mcclist[0].dataframe.drop('reference', 1)
+        # use position as index, the final transposed df will have the
+        # position at both index and column names
+        array.set_index('position', inplace=True)
+        
+        # remove first profile element from list since it is already contained 
+        # in DataFrame array
         del self.mcclist[0]
+        
         for i in self.mcclist:
+            # add NaN columns for interpolation
             for j in range(1, 100):
-                array.insert(y, "int" + str(y-1), np.nan)
+                array.insert(y, "int" + str(y), np.nan)
                 y = y + 1                
-            array.insert(y, "meas_values" + str(y-1), i.dataframe.meas_values)
+            array.insert(y, "meas_values" + str(y), i.dataframe.meas_values)
             y = y + 1
         
+        # interpolate between columns
         array.interpolate(method='linear', axis=1, limit=None, inplace=True)
-        
-        return array
+        # use index also for column names before transposing
+        array.set_axis(array.index, axis='columns', inplace=True)
+
+        # return transposed array                        
+        return array.transpose()
 
 
 # Class that holds Starcheck measurement data in a list of XyProfiles
@@ -45,7 +61,7 @@ class STARCHECK:
     
     def __init__(self, mcc_list: list):  
         self.mcclist = mcc_list
-        self.dataframe = self.merge_profiles()  
+        
   
     # def merge_profiles(self) -> pd.DataFrame:
     #     """
