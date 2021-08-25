@@ -5,6 +5,8 @@ At the moment the tests implemented are the ones used at the University Medical 
 
 pymcc was created to analyze mcc files from within QATrack+ through an upload test that creates a dict (of dicts), followed by composite tests that grab the individual results from that dict.
 
+Only symmetric fields are supported!
+
 ## Examples for QATrack+
 
 Using pymcc.wtscans profile and pdd curves can be analyzed. 
