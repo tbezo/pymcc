@@ -99,7 +99,10 @@ class STARCHECK:
     
     def __init__(self, mcc_list: list):  
         self.mcclist = mcc_list
-        
+        self.center_crossplane
+        self.center_inplane
+        self.diagonal_lr
+        self.diagonal_rl
   
     # def merge_profiles(self) -> pd.DataFrame:
     #     """

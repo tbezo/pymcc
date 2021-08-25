@@ -17,20 +17,23 @@ class PDD:
     Calculate the field parameters asked for in DIN6847-5
     """
     
-    def __init__(self, mod: str, curve_type: str, offset: float, 
-                 nominal_fs: float, filter: str, isocenter: float, 
-                 ssd: float, scan_depth: float, datafr: pd.DataFrame()) -> None:
+    def __init__(self, mod: str, curve_type: str, datafr: pd.DataFrame()) -> None:
+                 
+                 # offset: float, offaxis: float,
+                 # nominal_fs: float, filter: str, isocenter: float, 
+                 # ssd: float, scan_depth: float, 
 
         self.curve_type = curve_type
-        self.dataframe = datafr
-        self.isocenter = isocenter
-        self.scan_depth = scan_depth
-        self.offset = offset
-        self.ssd = ssd
-        self.nominal_fs = nominal_fs
-        self.filter = filter
         self.modality = mod
-
+        self.dataframe = datafr
+        #self.isocenter = isocenter
+        #self.scan_depth = scan_depth
+        #self.offset = offset
+        #self.offaxis = offaxis
+        #self.ssd = ssd
+        #self.nominal_fs = nominal_fs
+        #self.filter = filter
+        
 
     @staticmethod
     def interp_value(point_a: tuple, point_b: tuple,
@@ -372,7 +375,7 @@ class XyProfile:
     """
     Calculate the field parameters asked for in DIN6847-5
     """
-    def __init__(self, mod: str, curve_type: str, offset: float, 
+    def __init__(self, mod: str, curve_type: str, offset: float, offaxis: float, 
                  nominal_fs: float, filter: str, isocenter: float, 
                  ssd: float, scan_depth: float, datafr: pd.DataFrame()) -> None:
 
@@ -383,6 +386,7 @@ class XyProfile:
         self.ssd = ssd
         self.nominal_fs = nominal_fs
         self.offset = offset
+        self.offaxis = offaxis
         self.filter = filter
         self.modality = mod
 

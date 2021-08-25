@@ -25,6 +25,7 @@ def read_file(filepath: str) -> list:
     scan_depth = 100.0
     ssd = 900.0
     offset = 0.0
+    offaxis = 0.0
     filter = "FF"
     modality = "X"
 
@@ -52,13 +53,19 @@ def read_file(filepath: str) -> list:
             if line.split('=')[0] == "MODALITY":
                 modality = line.split('=')[1]
 
-            # get field offset information
+            # get field offset information (not robust if values are not equal)
             if line.split('=')[0] == "COLL_OFFSET_INPLANE":
                 offset = float(line.split('=')[1])
             if line.split('=')[0] == "COLL_OFFSET_CROSSPLANE":
                 offset = float(line.split('=')[1])
+            
+            # get scan offaxis value (not robust if values are not equal)
+            if line.split('=')[0] == "SCAN_OFFAXIS_INPLANE":
+                offaxis = float(line.split('=')[1])
+            if line.split('=')[0] == "SCAN_OFFAXIS_CROSSPLANE":
+                offaxis = float(line.split('=')[1])
 
-            # get nominal field size
+            # get nominal field size (not robust if values are not equal)
             if line.split('=')[0] == "FIELD_INPLANE":
                 nominal_fs = float(line.split('=')[1])
 
@@ -79,22 +86,24 @@ def read_file(filepath: str) -> list:
             elif line == "END_DATA":
                 copy = False
 
-                if data_type == "INPLANE_PROFILE":
+                # if data_type == "INPLANE_PROFILE":
+                #     data = conv_data(lines)
+                #     data_obj.append(XyProfile(modality, data_type, offset, offaxis,
+                #                              nominal_fs, filter, isocenter, 
+                #                              ssd, scan_depth, data))
+                #     lines = [] # empty line buffer
+                
+                # matches on both profiles
+                if "_PROFILE" in data_type: # == "CROSSPLANE_PROFILE":
                     data = conv_data(lines)
-                    data_obj.append(XyProfile(modality, data_type, offset, 
-                                             nominal_fs, filter, isocenter, 
-                                             ssd, scan_depth, data))
-                    lines = [] # empty line buffer
-                if data_type == "CROSSPLANE_PROFILE":
-                    data = conv_data(lines)
-                    data_obj.append(XyProfile(modality, data_type, offset, 
+                    data_obj.append(XyProfile(modality, data_type, offset, offaxis,
                                              nominal_fs, filter, isocenter, 
                                              ssd, scan_depth, data))
                     lines = [] # empty line buffer
                 if data_type == "PDD":
                     data = conv_data(lines)
-                    data_obj.append(PDD(modality, data_type, offset, nominal_fs,
-                        filter, isocenter, ssd, scan_depth, data))
+                    data_obj.append(PDD(modality, data_type, data))
+                    # removed: offset, nominal_fs, filter, isocenter, ssd, scan_depth
                     lines = [] # empty line buffer
 
             elif copy:
