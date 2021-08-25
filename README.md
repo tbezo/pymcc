@@ -1,11 +1,13 @@
 # pymcc
 module that reads mephisto mcc files from watertank scans or starcheck files. Maybe later an option for 729 measurement files will be added. 
 
-At the moment the tests implemented are the ones used at the university medical center mainz (mainly the default PTW Data Analyze Varian profile ones). pymcc is able to handle Photon (FF and FFF) as well as electron water tank measurements and Starcheck files.
+At the moment the tests implemented are the ones used at the University Medical Center Mainz (mainly the default PTW Data Analyze Varian profile ones). pymcc is able to handle Photon (FF and FFF) as well as electron water tank measurements and Starcheck files (at the moment a list of XyProfiles). Octavius 729 measurement files can be read and the measurement is put into a interpolated Pandas DataFrame (No further analysis possible).
 
 pymcc was created to analyze mcc files from within QATrack+ through an upload test that creates a dict (of dicts), followed by composite tests that grab the individual results from that dict.
 
 ## Examples for QATrack+
+
+Using pymcc.wtscans profile and pdd curves can be analyzed. 
 
 ### Water Tank Profile
 *File Upload Test: read_mcc_6x_10x10*
