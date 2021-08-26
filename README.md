@@ -40,25 +40,21 @@ A complete mcc_dict can looks like this (here electrons, 20 x 20 cm²):
 
 
 ### Starcheck
-(without using the starcheck class)
 *File Upload Test: read_mcc_0_6x*
 ```Python
 import pymcc
 
-# read mcc file and return list of measurement objects (PDD and/or Profiles)
-mymcc = pymcc.readmcc.read_file(FILE.name)
-
-mcc_dict = {
-    "CROSSPLANE_PROFILE": mymcc[3].calc_results(),
-    "INPLANE_PROFILE": mymcc[10].calc_results(),
-}
+# read Starcheck mcc file
+mystar = pymcc.readmcc.read_file(FILE.name)
+# analyze center inplane and crossplane profiles
+mcc_dict = mystar.analyze_center()
 
 # provide object dict for composite tests
 read_mcc_0_6x = mcc_dict
+
 ```
 *Access single result from dict in composite test: fs_0_y_py (macro name)*
 ```Python
+cax_0_x_py = read_mcc_0_6x["CROSSPLANE_PROFILE"]["CaxDev"]
 fs_0_y_py = read_mcc_0_6x["INPLANE_PROFILE"]["FWHM"]["fwhm"]
 ```
-
-The complete dict for a Starcheck mcc file contains 16 profiles of variable length. #3 and # 10 are crossplane and inplane profiles through the central axis. #14 and #15 are the diagonal profiles.
