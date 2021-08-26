@@ -55,6 +55,5 @@ read_mcc_0_6x = mcc_dict
 ```
 *Access single result from dict in composite test: fs_0_y_py (macro name)*
 ```Python
-cax_0_x_py = read_mcc_0_6x["CROSSPLANE_PROFILE"]["CaxDev"]
 fs_0_y_py = read_mcc_0_6x["INPLANE_PROFILE"]["FWHM"]["fwhm"]
 ```
