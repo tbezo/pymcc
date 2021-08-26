@@ -385,8 +385,8 @@ class XyProfile:
         self.scan_depth = scan_depth
         self.ssd = ssd
         self.nominal_fs = nominal_fs
-        self.offset = offset
-        self.offaxis = offaxis
+        self.offset = offset    # collimator offset
+        self.offaxis = offaxis  # scan position relative to beam center
         self.filter = filter
         self.modality = mod
 
@@ -689,7 +689,7 @@ class XyProfile:
         cax_dev = (self.interp_value(b_1, b_2, half_max) +
                     self.interp_value(a_1, a_2, half_max)) / 2
         
-        return cax_dev
+        return cax_dev - self.offset
 
 
     def calc_sym(self) -> np.float64:
