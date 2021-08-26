@@ -99,32 +99,26 @@ class STARCHECK:
     
     def __init__(self, mcc_list: list):  
         self.mcclist = mcc_list
-        self.center_crossplane
-        self.center_inplane
-        self.diagonal_lr
-        self.diagonal_rl
+        self.center_crossplane = self.mcclist[3]
+        self.center_inplane = self.mcclist[10]
+        # target left gun right
+        self.diagonal_tlgr = self.mcclist[14]
+        # target right gun left
+        self.diagonal_trgl = self.mcclist[15]
   
-    # def merge_profiles(self) -> pd.DataFrame:
-    #     """
-    #     merges all single xyProfiles into one 2D Dataframe with aditional
-    #     interpolation between the profiles. The final resolution is 0.1 mm.
+    def analyze_center(self) -> dict:
+        mcc_dict = {
+            "CROSSPLANE_PROFILE": self.center_crossplane.calc_results(),
+            "INPLANE_PROFILE": self.center_inplane.calc_results(),
+            }
         
-    #     Returns
-    #     -------
-    #     array : pd.DataFrame()
-    #         returns an interpolated and upsampled dataframe.
-
-    #     """
-    #     y = 2
-    #     array = self.mcclist[0].dataframe.drop('reference', 1)
-    #     del self.mcclist[0]
-    #     for i in self.mcclist:
-    #         for j in range(1, 100):
-    #             array.insert(y, "int" + str(y-1), np.nan)
-    #             y = y + 1                
-    #         array.insert(y, "meas_values" + str(y-1), i.dataframe.meas_values)
-    #         y = y + 1
+        return mcc_dict
+    
+    def analyze_diagonal(self) -> dict:
+        mcc_dict = {
+            "TLGR_PROFILE": self.diagonal_tlgr.calc_results(),
+            "TRGL_PROFILE": self.diagonal_trgl.calc_results(),
+            }
         
-    #     #array.interpolate(method='linear', axis=1, limit=None, inplace=True)
+        return mcc_dict     
         
-    #     return array

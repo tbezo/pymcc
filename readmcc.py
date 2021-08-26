@@ -10,10 +10,12 @@ Created on Fri Aug 01 13:25:39 2021
 import re
 import numpy as np
 import pandas as pd
+from typing import Union
 from pymcc.wtscans import XyProfile, PDD
+from pymcc.array import STARCHECK, SEVEN29
 
 
-def read_file(filepath: str) -> list:
+def read_file(filepath: str) -> Union[list, STARCHECK, SEVEN29]:
     """Read a mcc file and create an object from each data part.
     To access the filename in QATrack+ use FILE.name
     
@@ -57,6 +59,10 @@ def read_file(filepath: str) -> list:
                 offset_in = float(line.split('=')[1])
             if line.split('=')[0] == "COLL_OFFSET_CROSSPLANE":
                 offset_cr = float(line.split('=')[1])
+                
+            # get detector name
+            if line.split('=')[0] == "DETECTOR":
+                detector = line.split('=')[1]
             
             # get scan offaxis value (useful for starcheck)
             if line.split('=')[0] == "SCAN_OFFAXIS_INPLANE":
@@ -91,15 +97,15 @@ def read_file(filepath: str) -> list:
                 # create object after data block ends
                 if data_type == "INPLANE_PROFILE":
                     data = conv_data(lines)
-                    data_obj.append(XyProfile(modality, data_type, offset_cr,
-                                             offaxis_in, nominal_fs_in, filter,
+                    data_obj.append(XyProfile(modality, data_type, offset_in,
+                                             offaxis_cr, nominal_fs_in, filter,
                                              isocenter, ssd, scan_depth, data))
                     lines = [] # empty line buffer
                 
                 if data_type == "CROSSPLANE_PROFILE":
                     data = conv_data(lines)
-                    data_obj.append(XyProfile(modality, data_type, offset_in, 
-                                             offaxis_cr, nominal_fs_cr, filter,
+                    data_obj.append(XyProfile(modality, data_type, offset_cr, 
+                                             offaxis_in, nominal_fs_cr, filter,
                                              isocenter, ssd, scan_depth, data))
                     lines = [] # empty line buffer
                 
@@ -112,7 +118,12 @@ def read_file(filepath: str) -> list:
             elif copy:
                 lines.append(line)
 
-    return data_obj
+    if detector == "STARCHECK":
+        return STARCHECK(data_obj)
+    elif detector == "OCTAVIUS_729":
+        return SEVEN29(data_obj)
+    else:
+        return data_obj
 
 
 def conv_data(lines: list) -> pd.DataFrame:
