@@ -20,12 +20,11 @@ def read_file(filepath: str) -> list:
     Only symmetric fields and symmetric offsets are supported.
     
     """
-    # default values for our water tank scans
-    nominal_fs = 100.0
+    # default values if information is missing in mcc file.
+    nominal_fs_in = 100.0
+    nominal_fs_cr = 100.0
     scan_depth = 100.0
     ssd = 900.0
-    offset = 0.0
-    offaxis = 0.0
     filter = "FF"
     modality = "X"
 
@@ -45,7 +44,7 @@ def read_file(filepath: str) -> list:
         for line in meas_file:  # QATrack+ needs "in FILE"
             # strip() removes whitespace characters bevor and after text
             line = line.strip()
-            # detect the profile type
+            # detect the profile type (profile ore pdd)
             if line.split('=')[0] == "SCAN_CURVETYPE":
                 data_type = line.split('=')[1]
 
@@ -53,22 +52,25 @@ def read_file(filepath: str) -> list:
             if line.split('=')[0] == "MODALITY":
                 modality = line.split('=')[1]
 
-            # get field offset information (not robust if values are not equal)
+            # get field offset information
             if line.split('=')[0] == "COLL_OFFSET_INPLANE":
-                offset = float(line.split('=')[1])
+                offset_in = float(line.split('=')[1])
             if line.split('=')[0] == "COLL_OFFSET_CROSSPLANE":
-                offset = float(line.split('=')[1])
+                offset_cr = float(line.split('=')[1])
             
-            # get scan offaxis value (not robust if values are not equal)
+            # get scan offaxis value (useful for starcheck)
             if line.split('=')[0] == "SCAN_OFFAXIS_INPLANE":
-                offaxis = float(line.split('=')[1])
+                offaxis_in = float(line.split('=')[1])
             if line.split('=')[0] == "SCAN_OFFAXIS_CROSSPLANE":
-                offaxis = float(line.split('=')[1])
+                offaxis_cr = float(line.split('=')[1])
 
-            # get nominal field size (not robust if values are not equal)
+            # get nominal field/profile size
             if line.split('=')[0] == "FIELD_INPLANE":
-                nominal_fs = float(line.split('=')[1])
-
+                nominal_fs_in = float(line.split('=')[1])
+            if line.split('=')[0] == "FIELD_CROSSPLANE":
+                nominal_fs_cr = float(line.split('=')[1])
+            
+            # FF or FFF beam
             if line.split('=')[0] == "FILTER":
                 filter = line.split('=')[1]
 
@@ -85,21 +87,22 @@ def read_file(filepath: str) -> list:
                 copy = True
             elif line == "END_DATA":
                 copy = False
-
-                # if data_type == "INPLANE_PROFILE":
-                #     data = conv_data(lines)
-                #     data_obj.append(XyProfile(modality, data_type, offset, offaxis,
-                #                              nominal_fs, filter, isocenter, 
-                #                              ssd, scan_depth, data))
-                #     lines = [] # empty line buffer
                 
-                # matches on both profiles
-                if "_PROFILE" in data_type: # == "CROSSPLANE_PROFILE":
+                # create object after data block ends
+                if data_type == "INPLANE_PROFILE":
                     data = conv_data(lines)
-                    data_obj.append(XyProfile(modality, data_type, offset, offaxis,
-                                             nominal_fs, filter, isocenter, 
-                                             ssd, scan_depth, data))
+                    data_obj.append(XyProfile(modality, data_type, offset_cr,
+                                             offaxis_in, nominal_fs_in, filter,
+                                             isocenter, ssd, scan_depth, data))
                     lines = [] # empty line buffer
+                
+                if data_type == "CROSSPLANE_PROFILE":
+                    data = conv_data(lines)
+                    data_obj.append(XyProfile(modality, data_type, offset_in, 
+                                             offaxis_cr, nominal_fs_cr, filter,
+                                             isocenter, ssd, scan_depth, data))
+                    lines = [] # empty line buffer
+                
                 if data_type == "PDD":
                     data = conv_data(lines)
                     data_obj.append(PDD(modality, data_type, data))
