@@ -94,7 +94,7 @@ class SEVEN29:
                    self.dataframe.columns[::400])
 
 
-# Class that holds Starcheck measurement data in a list of XyProfiles
+# Class that holds Starcheck measurement data in a XyProfiles
 class STARCHECK:
     
     def __init__(self, mcc_list: list):  
