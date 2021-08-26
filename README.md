@@ -57,3 +57,6 @@ read_mcc_0_6x = mcc_dict
 ```Python
 fs_0_y_py = read_mcc_0_6x["INPLANE_PROFILE"]["FWHM"]["fwhm"]
 ```
+
+The two diagonals are labeled TLGR_PROFILE and TRGL_PROFILE. The dict from mystar.analyze_diagonal() looks like this:
+{'TLGR_PROFILE': {'Type': 'INPLANE_PROFILE', 'CaxDev': -1.7500384951353993, 'FWHM': {'fwhm (nominal)': 276.49675566173937, 'fwhm': 276.49675566173937}, 'Flatness': 2.118534052326748, 'Symmetry': -0.7116183813665132}, 'TRGL_PROFILE': {'Type': 'INPLANE_PROFILE', 'CaxDev': 0.12798456264559377, 'FWHM': {'fwhm (nominal)': 275.69602807162545, 'fwhm': 275.69602807162545}, 'Flatness': 2.20840822848013, 'Symmetry': -0.8215006262255542}}
