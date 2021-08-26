@@ -12,7 +12,7 @@ Only symmetric fields are tested, asymmetric fields should work.
 Using pymcc.wtscans profile and pdd curves can be analyzed. 
 
 ### Water Tank Profile
-*File Upload Test: read_mcc_6x_10x10*
+*File Upload Test: read_mcc_6x_10x10 (macro name)*
 ```Python
 import pymcc
 
@@ -27,7 +27,7 @@ for i in mymcc:
 read_mcc_6x_10x10 = mcc_dict
 ```
 
-*Access single result from dict in composite test: flat_10x10_x_py (makro name)*
+*Access single result from dict in composite test: flat_10x10_x_py (macro name)*
 ```Python
 flat_10x10_x_py = read_mcc_6x_10x10["CROSSPLANE_PROFILE"]["Flatness"]
 ```
@@ -42,7 +42,7 @@ For a single photon pdd the dict contains the following:
 {'PDD': {'Type': 'PDD', 'Q Index': 0.6671976734598629, 'Surface Dose': 47.71301033726637, 'D100': 67.11913960530438, 'D200': 38.52406807977445}}
 
 ### Starcheck
-*File Upload Test: read_mcc_0_6x*
+*File Upload Test: read_mcc_0_6x (macro name)*
 ```Python
 import pymcc
 
