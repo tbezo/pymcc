@@ -14,6 +14,7 @@ class SEVEN29:
     def __init__(self, mcc_list: list):  
         self.mcclist = mcc_list
         self.dataframe = self.merge_profiles()
+        self.dpmm = 0.1
   
     def merge_profiles(self) -> pd.DataFrame:
         """
@@ -80,7 +81,7 @@ class SEVEN29:
 
     def plot(self):
         """
-        Plots the DataFrame content with plt.imshow() 
+        Plots the DataFrame content with plt.imshow() and a few x/y-ticks
 
         Returns
         -------
@@ -107,6 +108,16 @@ class STARCHECK:
         self.diagonal_trgl = self.mcclist[15]
   
     def analyze_center(self) -> dict:
+        """
+        calculates the results for the center profiles (crossplane/inplane) 
+        using the calc_results function from the corresponding profile.
+
+        Returns
+        -------
+        dict
+            dict with results from profile analysis.
+
+        """
         mcc_dict = {
             "CROSSPLANE_PROFILE": self.center_crossplane.calc_results(),
             "INPLANE_PROFILE": self.center_inplane.calc_results(),
@@ -115,6 +126,16 @@ class STARCHECK:
         return mcc_dict
     
     def analyze_diagonal(self) -> dict:
+        """
+        calculates the results for the diagonal profiles (tlgr/trgl) 
+        using the calc_results function from the corresponding profile.
+
+        Returns
+        -------
+        dict
+            dict with results from profile analysis.
+
+        """
         mcc_dict = {
             "TLGR_PROFILE": self.diagonal_tlgr.calc_results(),
             "TRGL_PROFILE": self.diagonal_trgl.calc_results(),
