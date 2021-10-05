@@ -114,16 +114,20 @@ class OCT1500(OCT729):
 
         """
         # starting point for inserting columns
-        y = 1
+        y = 0
         
         # remove reference values, they are not needed
         array = self.mcclist[0].dataframe.drop('reference', 1)
+        # use position as index, the final transposed df will have the
+        # position at both index and column names
+        array.set_index('position', inplace=True)
         
         # remove first profile element from list since it is already contained 
         # in DataFrame array
         del self.mcclist[0]
              
         for i in self.mcclist:
+            i.dataframe.set_index('position', inplace=True)
             # add NaN columns for interpolation
             for j in range(1, 50):
                 array.insert(y+1, "int" + str(y), np.nan)
@@ -134,9 +138,6 @@ class OCT1500(OCT729):
         
         # interpolate between columns
         array.interpolate(method='linear', axis=1, limit=None, inplace=True)
-        # use position as index, the final transposed df will have the
-        # position at both index and column names
-        array.set_index('position', inplace=True)
         # use index also for column names before transposing
         array.set_axis(array.index, axis='columns', inplace=True)
 
