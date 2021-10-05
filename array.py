@@ -8,8 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
   
-# Class that holds 729 Array measurement data in a Dataframe
-class SEVEN29:
+# Class that holds Octavius 729 Array measurement data in a Dataframe
+class OCT729:
     
     def __init__(self, mcc_list: list):  
         self.mcclist = mcc_list
@@ -93,6 +93,55 @@ class SEVEN29:
                    self.dataframe.index[::400])
         plt.xticks(np.arange(0.5, len(self.dataframe.columns), 400),
                    self.dataframe.columns[::400])
+
+# Class that holds Octavius 1500 Array measurement data in a Dataframe
+class OCT1500(OCT729):
+    
+    def __init__(self, mcc_list: list):
+        super().__init__(mcc_list)
+
+  
+    def merge_profiles(self) -> pd.DataFrame:
+        """
+        Merges all xyProfiles into one 2D Dataframe with aditional
+        interpolation between the columns. The final resolution is 0.1 mm 
+        (which might too much)
+        
+        Returns
+        -------
+        array : pd.DataFrame()
+            returns an interpolated and upsampled dataframe.
+
+        """
+        # starting point for inserting columns
+        y = 1
+        
+        # remove reference values, they are not needed
+        array = self.mcclist[0].dataframe.drop('reference', 1)
+        
+        # remove first profile element from list since it is already contained 
+        # in DataFrame array
+        del self.mcclist[0]
+             
+        for i in self.mcclist:
+            # add NaN columns for interpolation
+            for j in range(1, 50):
+                array.insert(y+1, "int" + str(y), np.nan)
+                y = y + 1                
+            array.insert(y+1, "meas_values" + str(y), i.dataframe.meas_values)
+            #print(i.dataframe.meas_values[1300])
+            y = y + 1
+        
+        # interpolate between columns
+        array.interpolate(method='linear', axis=1, limit=None, inplace=True)
+        # use position as index, the final transposed df will have the
+        # position at both index and column names
+        array.set_index('position', inplace=True)
+        # use index also for column names before transposing
+        array.set_axis(array.index, axis='columns', inplace=True)
+
+        # return transposed array                        
+        return array.transpose()
 
 
 # Class that holds Starcheck measurement data in a XyProfiles
