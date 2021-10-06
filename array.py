@@ -77,6 +77,8 @@ class OCT729:
             by ds_val downsampled dataframe.
 
         """
+        # update resolution variable
+        # self.dpmm = self.dpmm * ds_val
         return self.dataframe.iloc[::ds_val, ::ds_val]
 
 
