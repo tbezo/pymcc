@@ -12,10 +12,10 @@ import numpy as np
 import pandas as pd
 from typing import Union
 from pymcc.wtscans import XyProfile, PDD
-from pymcc.array import STARCHECK, OCT729, OCT1000, OCT1500
+from pymcc.array import STARCHECK, STARCHECKMAXI, OCT729, OCT1000, OCT1500
 
 
-def read_file(filepath: str) -> Union[list, STARCHECK, OCT729, OCT1000, OCT1500]:
+def read_file(filepath: str) -> Union[list, STARCHECK, STARCHECKMAXI, OCT729, OCT1000, OCT1500]:
     """Read a mcc file and create an object from each data part.
     To access the filename in QATrack+ use FILE.name
     
@@ -122,6 +122,8 @@ def read_file(filepath: str) -> Union[list, STARCHECK, OCT729, OCT1000, OCT1500]
 
     if detector == "STARCHECK":
         return STARCHECK(data_obj)
+    elif detector == "STARCHECKMAXI":
+        return STARCHECKMAXI(data_obj)
     elif detector == "OCTAVIUS_729":
         return OCT729(data_obj)
     elif detector == "OCTAVIUS_1000":

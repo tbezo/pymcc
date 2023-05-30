@@ -255,4 +255,16 @@ class STARCHECK:
             }
         
         return mcc_dict     
-        
+
+
+# Class that holds Starcheck Maxi measurement data in a XyProfiles
+class STARCHECKMAXI(STARCHECK):
+    
+    def __init__(self, mcc_list: list):
+        self.mcclist = mcc_list
+        self.center_crossplane = self.mcclist[4]
+        self.center_inplane = self.mcclist[13]
+        # target left gun right
+        self.diagonal_tlgr = self.mcclist[18]
+        # target right gun left
+        self.diagonal_trgl = self.mcclist[19]
