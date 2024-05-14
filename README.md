@@ -1,16 +1,30 @@
 # pymcc
-Module that reads mephisto mcc files from watertank scans or array files. pymcc relies on Pandas and uses a Pandas DataFrame to store the measurement values within the class objects. 
+Module that reads mephisto mcc files from watertank scans or array files. pymcc relies on Pandas 
+and uses a Pandas DataFrame to store the measurement values within the class objects. 
 
-At the moment the tests implemented are the ones used at the University Medical Center Mainz (mainly the default PTW Data Analyze Varian profile ones). pymcc is able to handle Photon (FF and FFF) as well as electron water tank measurements, Starcheck (files with options to analyze the four main profiles) as well as Octavius 729 measurement files (measurement is put into an interpolated Pandas DataFrame - no further analysis possible).
+At the moment the tests implemented are the ones used at the University Medical Center Mainz 
+(mainly the default PTW Data Analyze Varian profile ones). pymcc is able to handle Photon (FF 
+and FFF) as well as electron water tank measurements, Starcheck (files with options to analyze 
+the four main profiles) as well as Octavius 729 measurement files (measurement is put into an 
+interpolated Pandas DataFrame - no further analysis possible).
 
-pymcc was created to analyze mcc files from within [QATrack+](https://github.com/qatrackplus/qatrackplus) through an upload test that creates a dict (of dicts), followed by composite tests that grab the individual results from that dict.
+pymcc was created to analyze mcc files from within [QATrack+](https://github.com/qatrackplus/qatrackplus) 
+through an upload test that creates a dict (of dicts), followed by composite tests that grab the 
+individual results from that dict.
 
-Only symmetric fields (X=Y) are tested, asymmetric fields should work.
+Only symmetric fields (X=Y) are validated, asymmetric fields should work.
 
 ## Installation
 
-    >>> source ~/venvs/qatrack31/bin/activate #optional
-    >>> pip install git+https://github.com/tbezo/pymcc
+It is now possible to install pymcc with pip directly from github. This should be easier than copying 
+the source files to your local venv or inside the QATrack+ project folder and will also check the dependencies.
+
+    source ~/venvs/qatrack31/bin/activate #optional
+    pip install git+https://github.com/tbezo/pymcc
+	
+If you do not want to have pymcc inside your environment (a.e you customize the code to your needs) 
+you can also put it inside the QATrack+ directory as described by Randy here: 
+[Import Code](https://groups.google.com/g/qatrack/c/n5x8osAj0eY/m/yHrQq7HzAQAJ)
 
 ## Examples for QATrack+
 
