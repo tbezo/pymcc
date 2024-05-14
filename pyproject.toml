@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Module that reads mephisto mcc files from watertank scans or array files"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = ["pylinac",
+dependencies = ["pylinac>=3.0.0",
 				"pandas",
 				]
 
