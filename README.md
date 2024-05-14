@@ -7,6 +7,11 @@ pymcc was created to analyze mcc files from within [QATrack+](https://github.com
 
 Only symmetric fields (X=Y) are tested, asymmetric fields should work.
 
+## Installation
+
+    >>> source ~/venvs/qatrack31/bin/activate #optional
+    >>> pip install git+https://github.com/tbezo/pymcc
+
 ## Examples for QATrack+
 
 Using pymcc.wtscans profile and pdd curves can be analyzed. 
