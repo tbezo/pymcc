@@ -1,1 +1,1 @@
-include testfiles_mcc/*.mcc
+graft testfiles_mcc
