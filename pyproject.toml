@@ -1,0 +1,10 @@
+[project]
+name = "pymcc"
+version = "0.1.1"
+description = "Module that reads mephisto mcc files from watertank scans or array files"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pylinac",
+    "pandas",
+]
