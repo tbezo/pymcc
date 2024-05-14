@@ -17,3 +17,6 @@ repository = "https://github.com/tbezo/pymcc"
 
 [project.license]
 text = "MIT"
+
+[tool.setuptools.dynamic]
+version = {attr = "pymcc.__version__"}
