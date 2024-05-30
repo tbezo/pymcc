@@ -1,5 +1,5 @@
 # pymcc
-Module that reads mephisto mcc files from watertank scans or array files. pymcc relies on Pandas 
+Module that reads PTW mephisto mcc files from watertank scans or array files. pymcc relies on Pandas 
 and uses a Pandas DataFrame to store the measurement values within the class objects. 
 
 At the moment the tests implemented are the ones used at the University Medical Center Mainz 
